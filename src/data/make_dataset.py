@@ -22,6 +22,9 @@ def main(
     """
     logger = logging.getLogger("Videos processing step")
     logger.info("Reading and extracting clips from match recordings...")
+    logger.info(
+        f"window_size = {window_size}, negative_samples_num = {negative_samples_num}"
+    )
     labels_df = pd.read_csv(labels_dir)
     labels_df = labels_df[~labels_df["event"].isin(["start", "end"])]
     labels_df = labels_df.drop(columns=["event_attributes"])
@@ -37,7 +40,7 @@ def main(
     clip_ids: list[str] = []
     times: list[float] = []
     events: list[str] = []
-    for video_id in all_videos[:1]:
+    for video_id in all_videos:
         path = Path(videos_dir, f"{video_id}.mp4")
         cap = cv2.VideoCapture(str(path))
 
@@ -54,7 +57,7 @@ def main(
         all_frames = np.concatenate([center_frames, negative_samples_frames])
         video_ids += [video_id] * len(all_frames)
         events += df["event"].to_list() + ["nothing"] * len(negative_samples_frames)
-        for i, frame_number in enumerate(all_frames[:2]):
+        for i, frame_number in enumerate(all_frames):
             frames = extract_frames(
                 cap,
                 frame_number=int(frame_number),
