@@ -40,6 +40,9 @@ def main(
     clip_ids: list[str] = []
     times: list[float] = []
     events: list[str] = []
+    fps_values: list[int] = []
+    clip_frames: list[int] = []
+    frame_counts: list[int] = []
     for video_id in all_videos:
         path = Path(videos_dir, f"{video_id}.mp4")
         cap = cv2.VideoCapture(str(path))
@@ -57,8 +60,10 @@ def main(
         all_frames = np.concatenate([center_frames, negative_samples_frames])
         video_ids += [video_id] * len(all_frames)
         events += df["event"].to_list() + ["nothing"] * len(negative_samples_frames)
+        fps_values += [fps] * len(all_frames)
+        frame_counts += [frame_count] * len(all_frames)
         for i, frame_number in enumerate(all_frames):
-            frames = extract_frames(
+            frames, clip_frame = extract_frames(
                 cap,
                 frame_number=int(frame_number),
                 num_frames_to_extract=window_size,
@@ -71,6 +76,7 @@ def main(
             )
             clip_ids.append(id)
             times.append(frame_number / fps)
+            clip_frames.append(clip_frame)
             t.update()
 
     new_df = pd.DataFrame(
@@ -78,6 +84,9 @@ def main(
             "video_id": video_ids,
             "clip_id": clip_ids,
             "time": times,
+            "fps": fps_values,
+            "frame_count": frame_counts,
+            "clip_frame": clip_frames,
             "event": events,
         }
     )

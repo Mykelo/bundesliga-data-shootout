@@ -1,12 +1,11 @@
 from pathlib import Path
 import numpy as np
-from typing import Literal
 import cv2
 
 
 def extract_frames(
     cap: cv2.VideoCapture, frame_number: int, num_frames_to_extract: int
-) -> list[np.ndarray]:
+) -> tuple[list[np.ndarray], int]:
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     start_frame = max(0, frame_number - num_frames_to_extract // 2)
     end_frame = min(frame_count - 1, frame_number + num_frames_to_extract // 2)
@@ -16,7 +15,7 @@ def extract_frames(
         ret, frame = cap.read()
         if ret:
             frames.append(frame)
-    return frames
+    return frames, frame_number - start_frame
 
 
 def save_frames(frames: list[np.ndarray], fps: int, filename: Path):
@@ -31,26 +30,25 @@ def save_frames(frames: list[np.ndarray], fps: int, filename: Path):
     out.release()
 
 
-def gaussian(x, mu, sig):
+def gaussian(x: np.ndarray, mu: float, sig: float):
     return np.exp(-np.power(x - mu, 2.0) / (2 * np.power(sig, 2.0)))
 
 
 def create_label(
-    frame_number: int,
-    window_size: int,
-    action: Literal["play", "challenge", "throwin", "nothing"],
-) -> dict[str, np.ndarray]:
-    values = np.array(range(window_size))
-    values = gaussian(values, frame_number, 2.5)
-    label = {
-        "play": np.zeros(window_size),
-        "challenge": np.zeros(window_size),
-        "throwin": np.zeros(window_size),
-    }
+    frames: list[int],
+    length: int,
+    window_size: int = 11,
+    eps: float = 1e-1,
+) -> np.ndarray:
+    window = np.array(range(window_size))
+    window = gaussian(window, window_size // 2, 2.5)
+    window[window < eps] = 0
 
-    if action != "nothing":
-        label[action] = values
+    label = np.zeros(length)
+    for frame in frames:
+        label[frame - window_size // 2 : frame + window_size // 2 + 1] += window
 
+    label[label > 1] = 1
     return label
 
 
@@ -80,3 +78,25 @@ def sample_negative(
     sampled_frames = np.random.choice(available_frames, sample_size, replace=False)
 
     return sampled_frames
+
+
+def read_video_to_numpy(path: Path) -> np.ndarray:
+    cap = cv2.VideoCapture(str(path))
+    frames = []
+
+    # loop through all frames in the video
+    while cap.isOpened():
+        ret, frame = cap.read()
+
+        if ret is False:
+            break
+
+        frames.append(frame)
+
+    # release the video capture object
+    cap.release()
+
+    # convert the list of frames to a NumPy array
+    video = np.array(frames)
+
+    return video
