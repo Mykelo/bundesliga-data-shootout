@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset
+import torch
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -35,9 +36,14 @@ class DFLDataset(Dataset):
     def __len__(self):
         return len(self.videos_data)
 
-    def __getitem__(self, index) -> tuple[np.ndarray, int]:
+    def __getitem__(self, index) -> tuple[np.ndarray | torch.Tensor, int]:
         label_row = self.videos_data.iloc[index]
-        video = read_video_to_numpy(Path(self.video_dir, f"{label_row['clip_id']}.mp4"))
+        video: np.ndarray | torch.tensor = read_video_to_numpy(
+            Path(self.video_dir, f"{label_row['clip_id']}.mp4")
+        )
+
+        if self.video_transform is not None:
+            video = self.video_transform(video)
 
         return video, self.label_map[label_row["event"]]
 
@@ -52,8 +58,8 @@ def train_test_split(
     indices = np.array(range(len(video_ids)))
     rng = np.random.default_rng(seed=random_state)
     rng.shuffle(indices)
-    test_indices = indices[:int(test_size)]
-    train_indices = indices[int(test_size):]
+    test_indices = indices[: int(test_size)]
+    train_indices = indices[int(test_size) :]
 
     test_videos, train_videos = video_ids[test_indices], video_ids[train_indices]
     test_dataset = DFLDataset(
