@@ -15,6 +15,10 @@ A short description of the project.
     ```sh
     conda env create --file environment.yml
     ```
+    If you already have the `dfl` environment, you have to first remove it:
+    ```sh
+    conda remove --name dfl --all
+    ```
 3. Activate environment:
     ```sh
     conda activate dfl
@@ -27,3 +31,5 @@ These steps have to be executed only once. To use this environment later just ac
 ```sh
 conda activate dfl
 ```
+
+If you want to use GPU, you have to also install [CUDA Toolkit](https://developer.nvidia.com/cuda-11-8-0-download-archive).
