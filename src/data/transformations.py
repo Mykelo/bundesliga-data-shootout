@@ -36,14 +36,14 @@ class VideoRandomHorizontalFlip(object):
 
 
 class VideoResize(object):
-    size: tuple[int] | int
+    size: tuple[int, int] | int
     interpolation: transforms.InterpolationMode
     max_size: int | None
     antialias: bool | None
 
     def __init__(
         self,
-        size: tuple[int] | int,
+        size: tuple[int, int] | int,
         interpolation: transforms.InterpolationMode = transforms.InterpolationMode.BILINEAR,
         max_size: int | None = None,
         antialias: bool | None = None,

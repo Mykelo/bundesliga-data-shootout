@@ -8,27 +8,24 @@ from src.data.processing import read_video_to_numpy
 
 class DFLDataset(Dataset):
     videos_data: pd.DataFrame
-    annotations_file: str
-    video_dir: str
+    data_dir: str
     label_map: dict[str, int]
     video_transform = None
     label_transform = None
 
     def __init__(
         self,
-        annotations_file: str,
-        video_dir: str,
+        data_dir: str,
         videos_to_include: list[str] | None = None,
         video_transform=None,
         label_transform=None,
     ):
-        self.annotations_file = annotations_file
-        self.videos_data = pd.read_csv(annotations_file)
+        self.videos_data = pd.read_csv(str(Path(data_dir, "labels.csv")))
         if videos_to_include is not None:
             self.videos_data = self.videos_data[
                 self.videos_data["video_id"].isin(videos_to_include)
             ]
-        self.video_dir = video_dir
+        self.data_dir = data_dir
         self.video_transform = video_transform
         self.label_transform = label_transform
         self.label_map = {"nothing": 0, "challenge": 1, "throwin": 2, "play": 3}
@@ -38,8 +35,8 @@ class DFLDataset(Dataset):
 
     def __getitem__(self, index) -> tuple[np.ndarray | torch.Tensor, int]:
         label_row = self.videos_data.iloc[index]
-        video: np.ndarray | torch.tensor = read_video_to_numpy(
-            Path(self.video_dir, f"{label_row['clip_id']}.mp4")
+        video: np.ndarray | torch.Tensor = read_video_to_numpy(
+            Path(self.data_dir, f"{label_row['clip_id']}.mp4")
         )
 
         if self.video_transform is not None:
@@ -63,15 +60,13 @@ def train_test_split(
 
     test_videos, train_videos = video_ids[test_indices], video_ids[train_indices]
     test_dataset = DFLDataset(
-        annotations_file=dataset.annotations_file,
-        video_dir=dataset.video_dir,
+        data_dir=dataset.data_dir,
         videos_to_include=test_videos,
         video_transform=dataset.video_transform,
         label_transform=dataset.label_transform,
     )
     train_dataset = DFLDataset(
-        annotations_file=dataset.annotations_file,
-        video_dir=dataset.video_dir,
+        data_dir=dataset.data_dir,
         videos_to_include=train_videos,
         video_transform=dataset.video_transform,
         label_transform=dataset.label_transform,
