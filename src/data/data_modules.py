@@ -5,7 +5,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 
-class MNISTDataModule(pl.LightningDataModule):
+class DFLDataModule(pl.LightningDataModule):
     def __init__(
         self, data_dir: str, batch_size: int = 32, random_state: int | None = None
     ):
@@ -16,7 +16,7 @@ class MNISTDataModule(pl.LightningDataModule):
 
     def setup(self, stage: str):
         self.transformations = transforms.Compose(
-            [VideoToTensor(), VideoResize(size=(270, 480))]
+            [VideoToTensor(), VideoResize(size=(180, 320))]
         )
         self.dfl_full = DFLDataset(
             data_dir=self.data_dir,
