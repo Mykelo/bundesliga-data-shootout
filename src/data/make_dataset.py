@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 from src.data.processing import extract_frames, save_frames, sample_negative
 from tqdm import tqdm
+from typing import Tuple
 
 
 def main(
@@ -16,6 +17,7 @@ def main(
     output_dir: Path = typer.Option(exists=True, default=Path("data", "processed")),
     negative_samples_num: int = typer.Option(default=4000),
     window_size: int = typer.Option(default=32),
+    frame_size: Tuple[int, int] | None = typer.Option(default=None),
 ):
     """Runs data processing scripts to turn raw data from (../raw) into
     cleaned data ready to be analyzed (saved in ../processed).
@@ -68,6 +70,8 @@ def main(
                 frame_number=int(frame_number),
                 num_frames_to_extract=window_size,
             )
+            if frame_size is not None:
+                frames = [cv2.resize(frame, frame_size) for frame in frames]
             id = f"{video_id}_{i}"
             save_frames(
                 frames,
