@@ -20,7 +20,7 @@ class DFLDataset(Dataset):
         video_transform=None,
         label_transform=None,
     ):
-        self.videos_data = pd.read_csv(str(Path(data_dir, "labels.csv")))
+        self.videos_data = pd.read_csv(data_dir / "labels.csv")
         if videos_to_include is not None:
             self.videos_data = self.videos_data[
                 self.videos_data["video_id"].isin(videos_to_include)
@@ -36,7 +36,7 @@ class DFLDataset(Dataset):
     def __getitem__(self, index) -> tuple[np.ndarray | torch.Tensor, int]:
         label_row = self.videos_data.iloc[index]
         video: np.ndarray | torch.Tensor = read_video_to_numpy(
-            Path(self.data_dir, f"{label_row['clip_id']}.mp4")
+            self.data_dir / f"{label_row['clip_id']}.mp4"
         )
 
         if self.video_transform is not None:
