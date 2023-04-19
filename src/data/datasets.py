@@ -10,25 +10,43 @@ class DFLDataset(Dataset):
     videos_data: pd.DataFrame
     data_dir: str
     label_map: dict[str, int]
+    videos_to_include: list[str] | None
+    clips_to_include: list[str] | None
     video_transform = None
     label_transform = None
+    size: int | None
+    random_state: int | None
 
     def __init__(
         self,
         data_dir: str,
         videos_to_include: list[str] | None = None,
+        clips_to_include: list[str] | None = None,
         video_transform=None,
         label_transform=None,
+        size: int | None = None,
+        random_state: int | None = None,
     ):
-        self.videos_data = pd.read_csv(data_dir / "labels.csv")
+        self.videos_data = pd.read_csv(Path(data_dir, "labels.csv"))
         if videos_to_include is not None:
             self.videos_data = self.videos_data[
                 self.videos_data["video_id"].isin(videos_to_include)
             ]
+        if clips_to_include is not None:
+            self.videos_data = self.videos_data[
+                self.videos_data["clip_id"].isin(clips_to_include)
+            ]
+        if size is not None:
+            self.videos_data = self.videos_data.sample(
+                n=size, random_state=random_state
+            )
+
         self.data_dir = data_dir
         self.video_transform = video_transform
         self.label_transform = label_transform
         self.label_map = {"nothing": 0, "challenge": 1, "throwin": 2, "play": 3}
+        self.size = size
+        self.random_state = random_state
 
     def __len__(self):
         return len(self.videos_data)
@@ -36,7 +54,7 @@ class DFLDataset(Dataset):
     def __getitem__(self, index) -> tuple[np.ndarray | torch.Tensor, int]:
         label_row = self.videos_data.iloc[index]
         video: np.ndarray | torch.Tensor = read_video_to_numpy(
-            self.data_dir / f"{label_row['clip_id']}.mp4"
+            Path(self.data_dir, f"{label_row['clip_id']}.mp4")
         )
 
         if self.video_transform is not None:
@@ -59,15 +77,19 @@ def train_test_split(
     train_indices = indices[int(test_size) :]
 
     test_videos, train_videos = video_ids[test_indices], video_ids[train_indices]
+    df = dataset.videos_data
+    test_df = df[df["video_id"].isin(test_videos)]
+    train_df = df[df["video_id"].isin(train_videos)]
+
     test_dataset = DFLDataset(
         data_dir=dataset.data_dir,
-        videos_to_include=test_videos,
+        clips_to_include=test_df["clip_id"].to_list(),
         video_transform=dataset.video_transform,
         label_transform=dataset.label_transform,
     )
     train_dataset = DFLDataset(
         data_dir=dataset.data_dir,
-        videos_to_include=train_videos,
+        clips_to_include=train_df["clip_id"].to_list(),
         video_transform=dataset.video_transform,
         label_transform=dataset.label_transform,
     )

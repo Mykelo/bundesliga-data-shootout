@@ -7,12 +7,17 @@ from torch.utils.data import DataLoader
 
 class DFLDataModule(pl.LightningDataModule):
     def __init__(
-        self, data_dir: str, batch_size: int = 32, random_state: int | None = None
+        self,
+        data_dir: str,
+        batch_size: int = 32,
+        random_state: int | None = None,
+        size: int | None = None,
     ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.random_state = random_state
+        self.size = size
 
     def setup(self, stage: str):
         self.transformations = transforms.Compose(
@@ -22,6 +27,8 @@ class DFLDataModule(pl.LightningDataModule):
             data_dir=self.data_dir,
             video_transform=self.transformations,
             label_transform=transforms.ToTensor(),
+            size=self.size,
+            random_state=self.random_state,
         )
         self.dfl_train, self.dfl_test = train_test_split(
             dataset=self.dfl_full, test_size=2, random_state=self.random_state
