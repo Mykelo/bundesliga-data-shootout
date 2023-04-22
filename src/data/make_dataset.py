@@ -46,7 +46,7 @@ def main(
     clip_frames: list[int] = []
     frame_counts: list[int] = []
     for video_id in all_videos:
-        path = Path(videos_dir, f"{video_id}.mp4")
+        path = videos_dir / f"{video_id}.mp4"
         cap = cv2.VideoCapture(str(path))
 
         fps = cap.get(cv2.CAP_PROP_FPS)
@@ -76,7 +76,7 @@ def main(
             save_frames(
                 frames,
                 fps=fps,
-                filename=Path(output_dir, f"{id}.mp4"),
+                filename=output_dir / f"{id}.mp4",
             )
             clip_ids.append(id)
             times.append(frame_number / fps)
@@ -94,7 +94,7 @@ def main(
             "event": events,
         }
     )
-    new_df.to_csv(str(Path(output_dir, "labels.csv")), index=False)
+    new_df.to_csv(output_dir / "labels.csv", index=False)
 
     t.close()
 
@@ -102,8 +102,4 @@ def main(
 if __name__ == "__main__":
     log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-
-    # not used in this stub but often useful for finding various files
-    project_dir = Path(__file__).resolve().parents[2]
-
     typer.run(main)

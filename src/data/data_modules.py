@@ -1,4 +1,4 @@
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 from src.data.datasets import DFLDataset, train_test_split
 from src.data.transformations import VideoToTensor, VideoResize
 from torchvision import transforms
@@ -7,7 +7,10 @@ from torch.utils.data import DataLoader
 
 class DFLDataModule(pl.LightningDataModule):
     def __init__(
-        self, data_dir: str, batch_size: int = 32, random_state: int | None = None
+        self,
+        data_dir: str,
+        batch_size: int = 32,
+        random_state: int | None = None,
     ):
         super().__init__()
         self.data_dir = data_dir
