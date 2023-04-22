@@ -1,6 +1,6 @@
 import typer
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 from pathlib import Path
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import MLFlowLogger
@@ -18,6 +18,8 @@ def main(
     ),
     max_epochs: int = typer.Option(default=20),
     random_state: Optional[int] = typer.Option(default=42),
+    video_size: Tuple[int, int] = typer.Option(default=(180, 320)),
+    batch_size: int = typer.Option(default=2),
 ):
     """Trains the ResNet 3D model."""
     AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -28,11 +30,19 @@ def main(
     logger.info(f"data_dir = {data_dir}")
     logger.info(f"checkpoint_dir = {checkpoint_dir}")
     logger.info(f"random_state = {random_state}")
+    logger.info(f"video_size = {video_size}")
+    logger.info(f"batch_size = {batch_size}")
 
     mlf_logger = MLFlowLogger(experiment_name=experiment_name)
+    mlf_logger.log_hyperparams({"video_size": video_size, "batch_size": batch_size})
 
     model = LitDFL()
-    dm = DFLDataModule(data_dir=str(data_dir), random_state=random_state, batch_size=2)
+    dm = DFLDataModule(
+        data_dir=str(data_dir),
+        random_state=random_state,
+        batch_size=batch_size,
+        video_size=video_size,
+    )
     checkpoint_callback = ModelCheckpoint(
         monitor="val_f1",
         dirpath=Path(checkpoint_dir, experiment_name),
