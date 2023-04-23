@@ -11,15 +11,17 @@ class DFLDataModule(pl.LightningDataModule):
         data_dir: str,
         batch_size: int = 32,
         random_state: int | None = None,
+        video_size: tuple[int, int] = (180, 320),
     ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.random_state = random_state
+        self.video_size = video_size
 
     def setup(self, stage: str):
         self.transformations = transforms.Compose(
-            [VideoToTensor(), VideoResize(size=(180, 320))]
+            [VideoToTensor(), VideoResize(size=self.video_size)]
         )
         self.dfl_full = DFLDataset(
             data_dir=self.data_dir,
