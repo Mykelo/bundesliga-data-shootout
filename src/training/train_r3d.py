@@ -5,7 +5,7 @@ from pathlib import Path
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import MLFlowLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
-from src.training.pl_modules import LitDFL
+from src.training.lightning_modules import LitDFL
 from src.data.data_modules import DFLDataModule
 import torch
 
