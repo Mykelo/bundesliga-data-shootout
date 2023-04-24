@@ -7,7 +7,6 @@ import numpy as np
 
 class VideoToTensor(object):
     def __call__(self, sample: np.ndarray) -> torch.Tensor:
-        # It expects frames at the first dimension
         tensor_frames: list[torch.Tensor] = []
         to_tensor = transforms.ToTensor()
         for frame in sample:
@@ -23,7 +22,6 @@ class VideoRandomHorizontalFlip(object):
         self.p = p
 
     def __call__(self, sample: torch.Tensor) -> torch.Tensor:
-        # It expects frames at the first dimension
         tensor_frames: list[torch.Tensor] = []
         should_flip = random.random() < self.p
         for frame in sample:
@@ -54,7 +52,6 @@ class VideoResize(object):
         self.antialias = antialias
 
     def __call__(self, sample: torch.Tensor) -> torch.Tensor:
-        # It expects frames at the first dimension
         tensor_frames: list[torch.Tensor] = []
         resize = transforms.Resize(
             size=self.size,

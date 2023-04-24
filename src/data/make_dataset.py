@@ -11,7 +11,7 @@ from typing import Tuple
 
 def main(
     videos_dir: Path = typer.Option(exists=True, default=Path("data", "raw", "train")),
-    labels_dir: Path = typer.Option(
+    labels_path: Path = typer.Option(
         exists=True, file_okay=True, default=Path("data", "raw", "train.csv")
     ),
     output_dir: Path = typer.Option(exists=True, default=Path("data", "processed")),
@@ -27,7 +27,7 @@ def main(
     logger.info(
         f"window_size = {window_size}, negative_samples_num = {negative_samples_num}"
     )
-    labels_df = pd.read_csv(labels_dir)
+    labels_df = pd.read_csv(labels_path)
     labels_df = labels_df[~labels_df["event"].isin(["start", "end"])]
     labels_df = labels_df.drop(columns=["event_attributes"])
 
