@@ -1,6 +1,6 @@
 import typer
 import logging
-from typing import Optional, Tuple
+from typing import Tuple
 from pathlib import Path
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import MLFlowLogger
@@ -17,7 +17,6 @@ def main(
         exists=True, dir_okay=True, default=Path("models")
     ),
     max_epochs: int = typer.Option(default=20),
-    random_state: Optional[int] = typer.Option(default=42),
     video_size: Tuple[int, int] = typer.Option(default=(180, 320)),
     batch_size: int = typer.Option(default=2),
 ):
@@ -29,7 +28,6 @@ def main(
     logger.info(f"experiment_name = {experiment_name}")
     logger.info(f"data_dir = {data_dir}")
     logger.info(f"checkpoint_dir = {checkpoint_dir}")
-    logger.info(f"random_state = {random_state}")
     logger.info(f"video_size = {video_size}")
     logger.info(f"batch_size = {batch_size}")
 
@@ -39,7 +37,6 @@ def main(
     model = LitDFL()
     dm = DFLDataModule(
         data_dir=str(data_dir),
-        random_state=random_state,
         batch_size=batch_size,
         video_size=video_size,
     )
