@@ -103,7 +103,10 @@ def extract(
 
 
 @app.command(
-    help="Splits the created dataset into train and test sets. Must be used after the `extract` command."
+    help=(
+        "Splits the created dataset into train and test sets. "
+        "Must be used after the `extract` command."
+    )
 )
 def split(
     test_size: float = typer.Option(default=0.2),
