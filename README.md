@@ -68,17 +68,27 @@ conda activate dfl
 
 The objective of this project is to create and train a model that can accurately detect one of four specified football events - challenge, throw-in, play, or no event - using a sequence of video frames. Once the model is developed, it can be used to analyze a recording of a football match and identify the exact time when each event occurred.
 
-## Preparing the dataset
+## Prepare the dataset
 
 To prepare the dataset, short clips from Bundesliga matches are extracted based on given annotations. All the code for this step is located under `src/data/`. Each clip is saved to a separate file, and all labels are saved in a CSV file. To execute the code, run the `src/data/make_dataset.py` script with the following command:
 
 ```sh
-python -m src.data.make_dataset --frame-size 960 540 --window-size=32
+python -m src.data.make_dataset extract --frame-size 960 540 --window-size=32
 ```
 
 This script extracts 32 frames around each event and resizes them to 960x540. It also samples clips with no events from the recordings. To view all available options, run the script with the `--help` flag.
 
-## Training a model
+## Split the dataset
+
+The next step is to split the dataset into train and test sets. It can be achieved using the below command which splits the `labels.csv` file into `train_labels.csv` and `test_labels.csv`:
+
+```sh
+python -m src.data.make_dataset split
+```
+
+To view all available options, run the script with the `--help` flag.
+
+## Train a model
 
 The classification model was trained using the ResNet 3D architecture, and its code can be found in `src/models/models.py`. To simplify the training process on the prepared dataset, the model was wrapped with a Lightning Module. The training script can be found in `src/training_r3d.py`, and an example of its execution is shown below:
 
