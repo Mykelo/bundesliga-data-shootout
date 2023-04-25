@@ -12,11 +12,13 @@ class DFLDataModule(pl.LightningDataModule):
         data_dir: str,
         batch_size: int = 32,
         video_size: tuple[int, int] = (180, 320),
+        skip_frames: int | None = None,
     ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.video_size = video_size
+        self.skip_frames = skip_frames
 
     def setup(self, stage: str):
         self.transformations = transforms.Compose(
@@ -27,16 +29,19 @@ class DFLDataModule(pl.LightningDataModule):
             labels_path=str(Path(self.data_dir, "train_labels.csv")),
             videos_dir=self.data_dir,
             video_transform=self.transformations,
+            skip_frames=self.skip_frames,
         )
         self.dfl_test = DFLDataset(
             labels_path=str(Path(self.data_dir, "test_labels.csv")),
             videos_dir=self.data_dir,
             video_transform=self.transformations,
+            skip_frames=self.skip_frames,
         )
         self.dfl_val = DFLDataset(
             labels_path=str(Path(self.data_dir, "test_labels.csv")),
             videos_dir=self.data_dir,
             video_transform=self.transformations,
+            skip_frames=self.skip_frames,
         )
 
     def train_dataloader(self):

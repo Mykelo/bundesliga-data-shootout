@@ -15,6 +15,7 @@ class DFLDataset(Dataset):
     label_transform = None
     size: int | None
     random_state: int | None
+    skip_frames: int | None
 
     def __init__(
         self,
@@ -24,6 +25,7 @@ class DFLDataset(Dataset):
         label_transform=None,
         size: int | None = None,
         random_state: int | None = None,
+        skip_frames: int | None = None,
     ):
         self.videos_data = pd.read_csv(labels_path)
         if size is not None:
@@ -38,6 +40,7 @@ class DFLDataset(Dataset):
         self.label_map = {"nothing": 0, "challenge": 1, "throwin": 2, "play": 3}
         self.size = size
         self.random_state = random_state
+        self.skip_frames = skip_frames
 
     def __len__(self):
         return len(self.videos_data)
@@ -47,6 +50,9 @@ class DFLDataset(Dataset):
         video: np.ndarray | torch.Tensor = read_video_to_numpy(
             Path(self.videos_dir, f"{label_row['clip_id']}.mp4")
         )
+
+        if self.skip_frames is not None:
+            video = video[:: self.skip_frames]
 
         if self.video_transform is not None:
             video = self.video_transform(video)
