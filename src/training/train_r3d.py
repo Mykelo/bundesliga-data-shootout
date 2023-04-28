@@ -7,6 +7,7 @@ from lightning.pytorch.loggers import MLFlowLogger
 from lightning.pytorch.callbacks import ModelCheckpoint
 from src.training.lightning_modules import LitDFL
 from src.data.data_modules import DFLDataModule
+from src.models.models import R3DDFL
 import torch
 
 
@@ -34,7 +35,7 @@ def main(
     mlf_logger = MLFlowLogger(experiment_name=experiment_name)
     mlf_logger.log_hyperparams({"video_size": video_size, "batch_size": batch_size})
 
-    model = LitDFL()
+    model = LitDFL(model=R3DDFL())
     dm = DFLDataModule(
         data_dir=str(data_dir),
         batch_size=batch_size,
