@@ -1,7 +1,6 @@
 import lightning.pytorch as pl
 import torch.nn.functional as F
 import torch
-from src.models.models import R3DDFL
 from sklearn.metrics import f1_score
 
 

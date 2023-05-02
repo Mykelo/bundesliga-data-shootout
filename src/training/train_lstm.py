@@ -4,13 +4,13 @@ from typing import Tuple
 from pathlib import Path
 from lightning.pytorch.loggers import MLFlowLogger
 from src.training.lightning_modules import LitDFL
-from src.models.models import R3DDFL
+from src.models.models import ResNetLSTM
 from src.training.utils import train_classification_model
 import torch
 
 
 def main(
-    experiment_name: str = "res_net_3d",
+    experiment_name: str = "res_net_lstm",
     data_dir: Path = typer.Option(exists=True, default=Path("data", "processed")),
     checkpoint_dir: Path = typer.Option(
         exists=True, dir_okay=True, default=Path("models")
@@ -21,10 +21,10 @@ def main(
     skip_frames: int = typer.Option(default=1),
     lr: float = 1e-3,
 ):
-    """Trains the ResNet 3D model."""
+    """Trains the ResNet+LSTM model."""
     AVAIL_GPUS = min(1, torch.cuda.device_count())
 
-    logger = logging.getLogger("Training ResNet 3D model")
+    logger = logging.getLogger("Training ResNet+LSTM model")
     logger.info(f"Using {AVAIL_GPUS} GPUs")
     logger.info(f"experiment_name = {experiment_name}")
     logger.info(f"data_dir = {data_dir}")
@@ -44,7 +44,7 @@ def main(
         }
     )
 
-    module = LitDFL(model=R3DDFL(), learning_rate=lr)
+    module = LitDFL(model=ResNetLSTM(), learning_rate=lr)
     train_classification_model(
         module=module,
         logger=mlf_logger,
