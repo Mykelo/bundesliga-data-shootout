@@ -90,7 +90,12 @@ To view all available options, run the script with the `--help` flag.
 
 ## Train a model
 
-The classification model was trained using the ResNet 3D architecture, and its code can be found in `src/models/models.py`. To simplify the training process on the prepared dataset, the model was wrapped with a Lightning Module. The training script can be found in `src/training_r3d.py`, and an example of its execution is shown below:
+2 architectures were tested as the classification model:
+
+- ResNet 3D,
+- ResNet + LSTM.
+
+Their code can be found in `src/models/models.py`. To simplify the training process on the prepared dataset, the models were wrapped with a Lightning Module. The training scripts can be found in `src/training/train_r3d.py`, and an example of their execution is shown below:
 
 ```sh
 python -m src.training.train_r3d.py --max-epochs=10 --video-size 140 250 --batch-size=8
