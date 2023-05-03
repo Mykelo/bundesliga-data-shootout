@@ -1,15 +1,14 @@
 import lightning.pytorch as pl
 import torch.nn.functional as F
 import torch
-from src.models.models import R3DDFL
 from sklearn.metrics import f1_score
 
 
 class LitDFL(pl.LightningModule):
-    def __init__(self, learning_rate: float = 1e-3):
+    def __init__(self, model: torch.nn.Module, learning_rate: float = 1e-3):
         super().__init__()
 
-        self.model = R3DDFL()
+        self.model = model
         self.learning_rate = learning_rate
         self.training_step_outputs: list[dict[str, torch.Tensor]] = []
         self.validation_step_outputs: list[dict[str, torch.Tensor]] = []
